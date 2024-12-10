@@ -1,33 +1,75 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer } from "react";
 import Button from "./Button";
 
-const reducer = (state, action) => {};
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "setValue1": {
+      return { ...state, value1: action.payload, display: action.payload };
+    }
+    case "setOperator": {
+      return { ...state, operator: action.payload, display: action.payload };
+    }
+    case "setValue2": {
+      return { ...state, value2: action.payload, display: action.payload };
+    }
+    case "clear": {
+      if (state.value2) {
+        return { ...state, value2: null };
+      } else if (state.operator) {
+        return { ...state, operator: null };
+      } else {
+        return { ...state, value1: null, display: null };
+      }
+    }
+    case "allClear": {
+      return {
+        ...state,
+        value1: null,
+        value2: null,
+        operator: null,
+        display: "00",
+      };
+    }
+    case "setDisplay": {
+      return { ...state, state, display: action.payload };
+    }
+    default:
+      throw new Error("a error occured");
+  }
+};
 
 const Display = () => {
-  const [currentOperannd, setCurrentOperand] = useState(0);
-  const [previousOperand, setPreviousOperand] = useState(0);
-
-  const [state, dispatch] = useReducer(reducer, currentOperannd);
+  const [state, dispatch] = useReducer(reducer, {
+    value1: null,
+    value2: null,
+    operator: null,
+    display: "00",
+  });
 
   const handleButtonClicked = (value) => {
-    setCurrentOperand(value);
+    if (!state.value1) {
+      dispatch({ type: "setValue1", payload: value });
+    } else if (!state.operator) {
+      dispatch({ type: "setOperator", payload: value });
+    } else if (!state.value2) {
+      dispatch({ type: "setValue2", payload: value });
+    }
+  };
+
+  const clearHandler = () => {
+    dispatch({ type: "clear" });
   };
 
   const allClearHandler = () => {
-    setCurrentOperand(0);
-    setPreviousOperand(0);
+    dispatch({ type: "allClear" });
   };
 
-  const calculate = () => {
-    setPreviousOperand(currentOperannd);
-    setCurrentOperand(0);
-  };
+  const calculate = () => {};
 
   return (
     <div className="flex flex-col justify-center items-center h-full w-full">
       <div className="bg-display h-1/6 w-1/3 text-white font-semibold text-2xl text-right flex flex-col justify-between items-stretch border border-white p-4 overflow-hidden">
-        <div className="post">{previousOperand}</div>
-        <div className="current">{currentOperannd}</div>
+        <div className="">{state.display}</div>
       </div>
       <div className="w-1/3 h-1/2 grid grid-cols-4 grid-rows-5 border border-white">
         <Button value={"AC"} color={"bg-slate"} onclick={allClearHandler} />
@@ -72,7 +114,7 @@ const Display = () => {
 
         <Button value={"0"} color={"bg-gray"} onclick={handleButtonClicked} />
         <Button value={"."} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"C"} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={"C"} color={"bg-gray"} onclick={clearHandler} />
         <Button value={"="} color={"bg-equal"} onclick={calculate} />
       </div>
     </div>
