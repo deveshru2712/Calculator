@@ -3,31 +3,51 @@ import Button from "./Button";
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case "addDecimal": {
+      if (!state.value1) {
+        return { ...state, value1: "0.", display: "0." };
+      } else if (state.value1 && !state.operator) {
+        return {
+          ...state,
+          value1: state.value1 + ".",
+          display: state.value1 + ".",
+        };
+      } else if (state.operator && !state.value2) {
+        return { ...state, value2: "0.", display: "0." };
+      } else if (state.value2 && !state.value2.includes(".")) {
+        return {
+          ...state,
+          value2: state.value2 + ".",
+          display: state.value2 + ".",
+        };
+      }
+      return state;
+    }
     case "toggle": {
       let result;
       if (state.value1 && !state.operator) {
-        result = -state.value1;
+        result = parseFloat(-state.value1);
         return {
           ...state,
-          value1: null,
+          value1: result,
           value2: null,
           operator: null,
           display: result,
         };
       } else if (state.value1 && state.operator && !state.value2) {
-        result = -state.value1;
+        result = parseFloat(-state.value1);
         return {
           ...state,
-          value1: null,
+          value1: result,
           value2: null,
           operator: null,
           display: result,
         };
       } else if (state.value1 && state.operator && state.value2) {
-        result = -state.value2;
+        result = parseFloat(-state.value2);
         return {
           ...state,
-          value1: null,
+          value1: result,
           value2: null,
           operator: null,
           display: result,
@@ -68,7 +88,7 @@ const reducer = (state, action) => {
         throw new Error("please provide correct input");
       }
       if (state.operator == "+") {
-        result = state.value1 + state.value2;
+        result = parseFloat(state.value1) + parseFloat(state.value2);
         return {
           ...state,
           value1: null,
@@ -77,7 +97,7 @@ const reducer = (state, action) => {
           display: result,
         };
       } else if (state.operator == "-") {
-        result = state.value1 - state.value2;
+        result = parseFloat(state.value1) - parseFloat(state.value2);
         return {
           ...state,
           value1: null,
@@ -86,7 +106,7 @@ const reducer = (state, action) => {
           display: result,
         };
       } else if (state.operator == "*") {
-        result = state.value1 * state.value2;
+        result = parseFloat(state.value1) * parseFloat(state.value2);
         return {
           ...state,
           value1: null,
@@ -95,7 +115,7 @@ const reducer = (state, action) => {
           display: result,
         };
       } else if (state.operator == "÷") {
-        if (state.value2 == 0) {
+        if (parseFloat(state.value2) == 0) {
           result = "infinite";
           return {
             ...state,
@@ -105,7 +125,7 @@ const reducer = (state, action) => {
             display: result,
           };
         }
-        result = state.value1 / state.value2;
+        result = parseFloat(state.value1) / parseFloat(state.value2);
         return {
           ...state,
           value1: null,
@@ -114,7 +134,7 @@ const reducer = (state, action) => {
           display: result,
         };
       } else if (state.operator == "%") {
-        result = state.value1 % state.value2;
+        result = parseFloat(state.value1) % parseFloat(state.value2);
         return {
           ...state,
           value1: null,
@@ -157,6 +177,8 @@ const Display = () => {
       dispatch({ type: "setValue2", payload: value });
     } else if (value == "+/-") {
       dispatch({ type: "toggle" });
+    } else if (value == ".") {
+      dispatch({ type: "addDecimal" });
     }
   };
 
