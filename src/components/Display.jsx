@@ -3,6 +3,37 @@ import Button from "./Button";
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case "toggle": {
+      let result;
+      if (state.value1 && !state.operator) {
+        result = -state.value1;
+        return {
+          ...state,
+          value1: null,
+          value2: null,
+          operator: null,
+          display: result,
+        };
+      } else if (state.value1 && state.operator && !state.value2) {
+        result = -state.value1;
+        return {
+          ...state,
+          value1: null,
+          value2: null,
+          operator: null,
+          display: result,
+        };
+      } else if (state.value1 && state.operator && state.value2) {
+        result = -state.value2;
+        return {
+          ...state,
+          value1: null,
+          value2: null,
+          operator: null,
+          display: result,
+        };
+      }
+    }
     case "allClear": {
       return {
         ...state,
@@ -124,6 +155,8 @@ const Display = () => {
       typeof value == "number"
     ) {
       dispatch({ type: "setValue2", payload: value });
+    } else if (value == "+/-") {
+      dispatch({ type: "toggle" });
     }
   };
 
