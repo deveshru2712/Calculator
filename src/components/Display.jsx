@@ -1,26 +1,8 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import Button from "./Button";
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "setValue1": {
-      return { ...state, value1: action.payload, display: action.payload };
-    }
-    case "setOperator": {
-      return { ...state, operator: action.payload, display: action.payload };
-    }
-    case "setValue2": {
-      return { ...state, value2: action.payload, display: action.payload };
-    }
-    case "clear": {
-      if (state.value2) {
-        return { ...state, value2: null };
-      } else if (state.operator) {
-        return { ...state, operator: null };
-      } else {
-        return { ...state, value1: null, display: null };
-      }
-    }
     case "allClear": {
       return {
         ...state,
@@ -30,11 +12,87 @@ const reducer = (state, action) => {
         display: "00",
       };
     }
-    case "setDisplay": {
-      return { ...state, state, display: action.payload };
+    case "clear": {
+      if (state.value2) {
+        return { ...state, value2: null, display: state.operator };
+      } else if (state.operator) {
+        return { ...state, operator: null, display: state.value1 };
+      } else {
+        return { ...state, value1: null, display: "00" };
+      }
     }
-    default:
-      throw new Error("a error occured");
+    case "setValue1": {
+      return { ...state, value1: action.payload, display: action.payload };
+    }
+    case "setOperator": {
+      return { ...state, operator: action.payload, display: action.payload };
+    }
+    case "setValue2": {
+      return { ...state, value2: action.payload, display: action.payload };
+    }
+    case "calculate": {
+      let result = 0;
+
+      if (!state.value1 && !state.operator && !state.value2) {
+        throw new Error("please provide correct input");
+      }
+      if (state.operator == "+") {
+        result = state.value1 + state.value2;
+        return {
+          ...state,
+          value1: null,
+          operator: null,
+          value2: null,
+          display: result,
+        };
+      } else if (state.operator == "-") {
+        result = state.value1 - state.value2;
+        return {
+          ...state,
+          value1: null,
+          operator: null,
+          value2: null,
+          display: result,
+        };
+      } else if (state.operator == "*") {
+        result = state.value1 * state.value2;
+        return {
+          ...state,
+          value1: null,
+          operator: null,
+          value2: null,
+          display: result,
+        };
+      } else if (state.operator == "÷") {
+        if (state.value2 == 0) {
+          result = "infinite";
+          return {
+            ...state,
+            value1: null,
+            operator: null,
+            value2: null,
+            display: result,
+          };
+        }
+        result = state.value1 / state.value2;
+        return {
+          ...state,
+          value1: null,
+          operator: null,
+          value2: null,
+          display: result,
+        };
+      } else if (state.operator == "%") {
+        result = state.value1 % state.value2;
+        return {
+          ...state,
+          value1: null,
+          operator: null,
+          value2: null,
+          display: result,
+        };
+      }
+    }
   }
 };
 
@@ -46,12 +104,25 @@ const Display = () => {
     display: "00",
   });
 
+  useEffect(() => {
+    console.table(state);
+  }, [state]);
+
   const handleButtonClicked = (value) => {
-    if (!state.value1) {
+    if (!state.value1 && typeof value == "number") {
       dispatch({ type: "setValue1", payload: value });
-    } else if (!state.operator) {
+    } else if (
+      state.value1 &&
+      !state.operator &&
+      ["+", "-", "*", "÷", "%"].includes(value)
+    ) {
       dispatch({ type: "setOperator", payload: value });
-    } else if (!state.value2) {
+    } else if (
+      state.value1 &&
+      state.operator &&
+      !state.value2 &&
+      typeof value == "number"
+    ) {
       dispatch({ type: "setValue2", payload: value });
     }
   };
@@ -64,7 +135,9 @@ const Display = () => {
     dispatch({ type: "allClear" });
   };
 
-  const calculate = () => {};
+  const calculate = () => {
+    dispatch({ type: "calculate" });
+  };
 
   return (
     <div className="flex flex-col justify-center items-center h-full w-full">
@@ -80,32 +153,32 @@ const Display = () => {
         />
         <Button value={"%"} color={"bg-slate"} onclick={handleButtonClicked} />
         <Button
-          value={"/"}
+          value={"+"}
           color={"bg-buttonOrange"}
           onclick={handleButtonClicked}
         />
 
-        <Button value={"7"} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"8"} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"9"} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={7} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={8} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={9} color={"bg-gray"} onclick={handleButtonClicked} />
         <Button
           value={"*"}
           color={"bg-buttonOrange"}
           onclick={handleButtonClicked}
         />
 
-        <Button value={"4"} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"5"} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"6"} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={4} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={5} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={6} color={"bg-gray"} onclick={handleButtonClicked} />
         <Button
           value={"-"}
           color={"bg-buttonOrange"}
           onclick={handleButtonClicked}
         />
 
-        <Button value={"3"} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"2"} color={"bg-gray"} onclick={handleButtonClicked} />
-        <Button value={"1"} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={3} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={2} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={1} color={"bg-gray"} onclick={handleButtonClicked} />
         <Button
           value={"÷"}
           color={"bg-buttonOrange"}
