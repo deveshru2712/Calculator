@@ -160,21 +160,20 @@ const Display = () => {
   }, [state]);
 
   const handleButtonClicked = (value) => {
-    if (!state.value1 && typeof value == "number") {
-      dispatch({ type: "setValue1", payload: value });
-    } else if (
-      state.value1 &&
-      !state.operator &&
-      ["+", "-", "*", "÷", "%"].includes(value)
-    ) {
+    if (typeof value === "number") {
+      if (!state.operator) {
+        dispatch({
+          type: "setValue1",
+          payload: state.value1 ? `${state.value1}${value}` : `${value}`,
+        });
+      } else {
+        dispatch({
+          type: "setValue2",
+          payload: state.value2 ? `${state.value2}${value}` : `${value}`,
+        });
+      }
+    } else if (!state.operator && ["+", "-", "*", "÷", "%"].includes(value)) {
       dispatch({ type: "setOperator", payload: value });
-    } else if (
-      state.value1 &&
-      state.operator &&
-      !state.value2 &&
-      typeof value == "number"
-    ) {
-      dispatch({ type: "setValue2", payload: value });
     } else if (value == "+/-") {
       dispatch({ type: "toggle" });
     } else if (value == ".") {
@@ -240,7 +239,7 @@ const Display = () => {
           onclick={handleButtonClicked}
         />
 
-        <Button value={"0"} color={"bg-gray"} onclick={handleButtonClicked} />
+        <Button value={0} color={"bg-gray"} onclick={handleButtonClicked} />
         <Button value={"."} color={"bg-gray"} onclick={handleButtonClicked} />
         <Button value={"C"} color={"bg-gray"} onclick={clearHandler} />
         <Button value={"="} color={"bg-equal"} onclick={calculate} />
